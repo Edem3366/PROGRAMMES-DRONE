@@ -10,7 +10,7 @@ if max(faces(:)) > size(sommets, 1) || min(faces(:)) < 1
   error("Les indices des faces dépassent la taille des sommets !");
 end
 % Nombre de subdivisions par face (densification)
-nSub = 5;  % Plus la valeur est grande, plus le maillage est dense
+nSub = 20;  % Plus la valeur est grande, plus le maillage est dense
 % Nouvelle liste de sommets et de faces
 nSommets = size(sommets, 1);
 newSommets = sommets;
