@@ -1,6 +1,6 @@
 # Blender 4.3.2
 # www.blender.org
-mtllib ville avec route petite vf pour edem.mtl
+mtllib ville.mtl
 o Cube
 v -0.979891 -0.069502 -0.420853
 v -0.979891 0.811935 -0.420853
