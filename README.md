@@ -11,3 +11,6 @@ TRAJECTOIREOPTIMALE.m : Récupère la carte créée avec MATTTOBATIMENTS.m et ap
 
 CSVTOBLENDER.py : Utilisé dans l'interface Python de Blender afin d'automatiser le remplissage des données du CSV dans la timeline Blender<br/>
 
+VILLE.obj : Environnement 3D final créé sur Blender
+
+VILLESIMPLIFIEE.obj : Environnement 3D final simplifié par blocs
