@@ -6,6 +6,8 @@ faces = data.faces;
 % Réindexer les faces (ajouter 1 à chaque indice pour passer de 0-basé à 1-basé)
 faces = faces + 1;
 % Vérification des indices pour éviter les erreurs
+% faces(:) transforme la matrice des faces en un vecteur colonne contenant toutes les infos
+% || c'est un ou 
 if max(faces(:)) > size(sommets, 1) || min(faces(:)) < 1
   error("Les indices des faces dépassent la taille des sommets !");
 end
@@ -16,15 +18,16 @@ nSommets = size(sommets, 1);
 newSommets = sommets;
 newFaces = [];
 % Générer les nouveaux sommets en respectant les formes d'origine
+% On parcourt chaque face du modèle 3D. faces est une matrice où chaque ligne contient les indices de 3 sommets formant un triangle.
 for i = 1:size(faces, 1)
   % Extraire les indices des sommets de la face
   idx = faces(i, :);
   facePoints = sommets(idx, :);
-  % Définir le plan de la face avec une base locale
+  % Définir le plan de la face avec une base locale .On prend le premier point comme origine et on crée deux vecteurs du plan de la face.
   origine = facePoints(1, :);
   v1 = facePoints(2, :) - origine;
   v2 = facePoints(3, :) - origine;
-   % Calculer la normale pour garantir le bon alignement
+   % Calculer la normale pour garantir le bon alignement,  On calcule la normale (perpendiculaire au plan) avec le produit vectoriel. Puis on la normalise pour avoir un vecteur de longueur 1.
   normale = cross(v1, v2);
   normale = normale / norm(normale);
   % Créer une base orthonormée locale (U, V, N)
@@ -40,6 +43,7 @@ for i = 1:size(faces, 1)
   maxV = max(localCoords(:, 2));
   % Générer une grille de points dans ce plan
   indexGrid = zeros(nSub + 1, nSub + 1);
+  % on parcourt chaque point de la grille:
    for uStep = 0:nSub
       for vStep = 0:nSub
           % Interpolation dans le repère local
@@ -49,20 +53,20 @@ for i = 1:size(faces, 1)
           % Conversion vers le repère global
           newPoint = origine + localU * u + localV * v;
         
-          % Ajouter le nouveau sommet à la liste
+          % Ajouter le nouveau sommet à la liste pour les incorporer au repère 3D
           nSommets = nSommets + 1;
           newSommets(nSommets, :) = newPoint;
           indexGrid(uStep + 1, vStep + 1) = nSommets;
       end
   end
-  % Connecter les nouveaux sommets pour former des triangles
   for uStep = 1:nSub
       for vStep = 1:nSub
+      % On parcourt chaque "case" de la grille.
           p1 = indexGrid(uStep, vStep);
           p2 = indexGrid(uStep + 1, vStep);
           p3 = indexGrid(uStep, vStep + 1);
           p4 = indexGrid(uStep + 1, vStep + 1);
-          % Ajouter deux triangles pour former une grille fine
+          % On récupère les 4 coins d’un carré dans la grille. Et on le divise en 2 triangles:
           newFaces = [newFaces; p1, p2, p4];  % Triangle 1
           newFaces = [newFaces; p1, p4, p3];  % Triangle 2
       end
@@ -76,7 +80,7 @@ indicesSommets = unique(faces(:));
 % Extraire les coordonnées des bâtiments
 points = sommets(indicesSommets, :);
 % Vérification de l'orientation des coordonnées
-points = points(:, [1, 3, 2]);  % Permuter Y et Z si nécessaire
+points = points(:, [1, 3, 2]);  % Permuter Y et Z 
 % Création de la carte d'occupation 3D
 map3D = occupancyMap3D(10);
 % Définition de la pose du capteur (centre d'origine)
@@ -97,6 +101,8 @@ set(gca, 'ZDir', 'normal');
 grid on;
 axis on;
 view(30, 30);
+
+% Ancienne tentative avec les faces affichées sous forme de polygones
 % Dessiner les nouvelles faces en conservant la géométrie d'origine
 hold on;
 for i = 1:size(faces, 1)
@@ -110,5 +116,7 @@ for i = 1:size(faces, 1)
   patch(facePoints(:, 1), facePoints(:, 2), facePoints(:, 3), 'b', 'FaceAlpha', 0.3);
 end
 hold off;
+
+
 % Sauvegarder la carte mise à jour
 save('map3D_occupation.mat', 'map3D');
